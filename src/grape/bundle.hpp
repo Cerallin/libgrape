@@ -9,6 +9,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <unistd.h>
 #include <vector>
 
 namespace Grape {
@@ -26,7 +27,19 @@ template <typename PIXEL_T> class Bundle {
         : imageWidth(imageWidth), imageHeight(imageHeight) {}
     ~Bundle() = default;
 
-    void Add(std::string filename) { _fileList.push_back(filename); }
+    GRAPE_RET Add(std::string filename) {
+        if (access(filename.c_str(), F_OK) == 0) {
+            _fileList.push_back(filename);
+            return GRAPE_OK;
+        } else {
+            return GRAPE_FAIL;
+        }
+    }
+
+    GRAPE_RET Add(const char *filename, int len) {
+        std::string str(filename, len);
+        return Add(str);
+    }
 
     GRAPE_RET Dump(std::ostream &outStream) const;
 
@@ -70,6 +83,12 @@ Bitmap<PIXEL_T> *Bundle<PIXEL_T>::makeBitmap(std::string fileString) const {
 
 template <typename PIXEL_T>
 GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream) const {
+    if (_fileList.size() < 2) { // no files to dump
+#ifndef NDEBUG
+        std::cerr << "Less than 2 files. Abort." << std::endl;
+#endif
+        return GRAPE_ERR;
+    }
 #ifndef NDEBUG
     for (auto str : _fileList) {
         fprintf(stderr, "%s\n", str.c_str());

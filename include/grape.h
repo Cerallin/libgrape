@@ -16,14 +16,14 @@ typedef int GRAPE_RET;
 #define GRAPE_FAIL ((GRAPE_RET)1)
 #define GRAPE_ERR  ((GRAPE_RET)(-1))
 
-typedef void *GrapeBundlePtr;
+typedef void *grape_bundle_ptr_t;
 
-GrapeBundlePtr grape_init(uint8_t imageWidth, uint8_t imageHeight,
+grape_bundle_ptr_t grape_init(uint8_t imageWidth, uint8_t imageHeight,
                           uint8_t imageType);
-GRAPE_RET grape_add_file(GrapeBundlePtr bundlePtr, const char *filename,
+GRAPE_RET grape_add_file(grape_bundle_ptr_t bundlePtr, const char *filename,
                          ssize_t len);
-GRAPE_RET grape_dump(const GrapeBundlePtr bundlePtr, const char *outputFile);
-void grape_deinit(GrapeBundlePtr bundlePtr);
+GRAPE_RET grape_dump(const grape_bundle_ptr_t bundlePtr, const char *outputFile);
+void grape_deinit(grape_bundle_ptr_t bundlePtr);
 
 #ifdef __cplusplus
 }
