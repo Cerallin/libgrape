@@ -23,44 +23,36 @@ if(GIT_FOUND)
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 else()
-    set(GIT_COMMIT_HASH "")
+    set(GIT_COMMIT_HASH "Release")
 endif()
 
 configure_file(
-    ${CMAKE_SOURCE_DIR}/version.h.in
-    ${CMAKE_BINARY_DIR}/version.h
+    ${CMAKE_SOURCE_DIR}/config.h.in
+    ${CMAKE_BINARY_DIR}/config.h
     @ONLY
 )
 
 # Compile flags
 set(CMAKE_C_FLAGS_DEBUG "-g -O0 -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall")
-set(CMAKE_C_FLAGS_RELEASE "-O2")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+set(CMAKE_C_FLAGS_RELEASE "-O2 -flto")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2 -flto")
 
 # Include directory
-include_directories(include src)
+include_directories(include src ${CMAKE_BINARY_DIR})
 
-# Library sources
-set(GRAPE_SOURCES
-    src/grape/bitmap.hpp
-    src/grape/bundle.hpp
-    src/grape/exports.cpp
-)
+# Library
+add_subdirectory(lib)
 
-add_library(grape_shared SHARED ${GRAPE_SOURCES})
-set_target_properties(grape_shared PROPERTIES OUTPUT_NAME "grape")
-
-add_library(grape_static STATIC ${GRAPE_SOURCES})
-set_target_properties(grape_static PROPERTIES OUTPUT_NAME "grape")
-
-# Executable sources
+# Executable sources, compiled locally
 add_executable(grape
+    src/bitmap.hpp
+    src/bundle.hpp
     src/cli.c
+    src/exports.cpp
     src/text.c
 )
-target_include_directories(grape PRIVATE ${CMAKE_BINARY_DIR})
-target_link_libraries(grape PRIVATE grape_static)
+target_compile_definitions(grape PUBLIC GRAPE_DUMP)
 
 # find libgrit
 find_library(GRIT_LIB grit)
@@ -68,20 +60,31 @@ find_path(GRIT_INCLUDE_DIR grit/grit.h)
 if (GRIT_LIB AND GRIT_INCLUDE_DIR)
     message(STATUS "libgrit found!")
     include_directories(${GRIT_INCLUDE_DIR})
-    target_link_libraries(grape_shared PRIVATE ${GRIT_LIB})
-    target_link_libraries(grape_static PRIVATE ${GRIT_LIB})
+    target_link_libraries(grape PRIVATE ${GRIT_LIB})
 else()
     message(FATAL_ERROR "libgrit not found!")
 endif()
-
-# Installation
-install(TARGETS grape_shared grape_static grape
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin)
 
 install(DIRECTORY include/ DESTINATION include)
 
 # Tests
 enable_testing()
-add_subdirectory(tests)
+
+# CppUTest
+add_subdirectory(tests/CppUTest)
+add_executable(runTests
+    tests/test_main.cpp
+    tests/test_dump.cpp
+    tests/test_load.cpp
+    lib/bundle_load.c
+    tests/mock_decompress.cpp
+)
+target_compile_definitions(runTests PUBLIC GRAPE_DUMP GRAPE_LOAD)
+set(DEVKITPRO_PATH $ENV{DEVKITPRO})
+target_include_directories(runTests PRIVATE "${DEVKITPRO_PATH}/libnds/include")
+
+# Link CppUTest libraries
+target_link_libraries(runTests CppUTest CppUTestExt ${GRIT_LIB})
+
+# Enable tests
+add_test(NAME runTests COMMAND runTests)

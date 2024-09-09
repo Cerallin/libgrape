@@ -1,4 +1,4 @@
-#include "version.h"
+#include "config.h"
 
 #include "text.h"
 

@@ -7,8 +7,9 @@
 extern "C" {
 #endif
 
-#define IMG_8B_256_COLOR   ((uint8_t)0x0F)
-#define IMG_16B_TRUE_COLOR ((uint8_t)0xFF)
+#define IMG_8B_256_COLOR   ((uint8_t)0x03)
+#define IMG_16B_TRUE_COLOR ((uint8_t)0x0C)
+#define IMG_COMPRESSED     ((uint8_t)0x10)
 
 typedef struct _GIDF_DiffHeader {
     uint8_t signatureDIFF[4];
@@ -17,6 +18,8 @@ typedef struct _GIDF_DiffHeader {
 
 typedef struct _GIDF_ImageHeader {
     uint8_t signatureIMG[4];
+    uint16_t width;
+    uint16_t height;
     uint32_t imageSize;
 } GIDF_ImageHeader;
 

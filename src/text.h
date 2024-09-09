@@ -10,6 +10,7 @@ typedef struct _arguments {
     char **files;
     char *output_file;
     int file_count;
+    int compress;
 } arguments_t;
 
 extern struct argp_option options[];

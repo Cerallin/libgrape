@@ -8,5 +8,6 @@
 #define GIT_COMMIT_HASH           "@GIT_COMMIT_HASH@"
 #define BUG_REPORT_URL            "@BUG_REPORT_URL@"
 #define SOFTWARE_LONG_DESCRIPTION "@SOFTWARE_LONG_DESCRIPTION@"
+#define BUILD_DIR                 "@CMAKE_BINARY_DIR@"
 
 #endif // VERSION_H

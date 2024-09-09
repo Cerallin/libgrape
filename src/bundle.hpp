@@ -1,14 +1,11 @@
 #ifndef GRAPE_BUNDLE_H
 #define GRAPE_BUNDLE_H
 
+#include "bitmap.hpp"
 #include "gidf.h"
-#include "grape.h"
-#include "grape/bitmap.hpp"
 
 #include <fstream>
-#include <iostream>
 #include <memory>
-#include <string>
 #include <unistd.h>
 #include <vector>
 
@@ -17,13 +14,13 @@ namespace Grape {
 template <typename PIXEL_T> class Bundle {
   private:
     std::vector<std::string> _fileList;
-    uint8_t imageWidth;
-    uint8_t imageHeight;
+    uint16_t imageWidth;
+    uint16_t imageHeight;
 
     Bitmap<PIXEL_T> *makeBitmap(std::string fileString) const;
 
   public:
-    Bundle(uint8_t imageWidth, uint8_t imageHeight)
+    Bundle(uint16_t imageWidth, uint16_t imageHeight)
         : imageWidth(imageWidth), imageHeight(imageHeight) {}
     ~Bundle() = default;
 
@@ -41,16 +38,21 @@ template <typename PIXEL_T> class Bundle {
         return Add(str);
     }
 
-    GRAPE_RET Dump(std::ostream &outStream) const;
+    GRAPE_RET Dump(std::ostream &outStream,
+                   ECprsTag compressTag = CPRS_FAKE_TAG) const;
 
-    GRAPE_RET Dump(std::string fileString) const {
-        return Dump(fileString.c_str());
+    GRAPE_RET Dump(std::string fileString,
+                   ECprsTag compressTag = CPRS_FAKE_TAG) const {
+        return Dump(fileString.c_str(), compressTag);
     }
-    GRAPE_RET Dump(const char *filename) const {
+    GRAPE_RET Dump(const char *filename,
+                   ECprsTag compressTag = CPRS_FAKE_TAG) const {
         constexpr auto flags = std::ios::out | std::ios::binary;
         std::ofstream outStream(filename, flags);
+        GRAPE_RET ret = Dump(outStream, compressTag);
+        outStream.close();
 
-        return Dump(outStream);
+        return ret;
     }
 
     uint8_t Width(void) const { return imageWidth; }
@@ -65,7 +67,7 @@ template <typename T> constexpr uint8_t getImageType(void) {
     } else if (std::is_same_v<T, uint16_t>) {
         return IMG_16B_TRUE_COLOR;
     } else {
-        return NULL;
+        return 0;
     }
 }
 
@@ -82,18 +84,14 @@ Bitmap<PIXEL_T> *Bundle<PIXEL_T>::makeBitmap(std::string fileString) const {
 }
 
 template <typename PIXEL_T>
-GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream) const {
+GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream,
+                                ECprsTag compressTag) const {
     if (_fileList.size() < 2) { // no files to dump
 #ifndef NDEBUG
         std::cerr << "Less than 2 files. Abort." << std::endl;
 #endif
         return GRAPE_ERR;
     }
-#ifndef NDEBUG
-    for (auto str : _fileList) {
-        fprintf(stderr, "%s\n", str.c_str());
-    }
-#endif
     // Dump file header
     {
         GIDF_Header fileHeader = {
@@ -111,10 +109,12 @@ GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream) const {
         auto bitmap = std::unique_ptr<Bitmap<PIXEL_T>>(makeBitmap(curr[0]));
         GIDF_ImageHeader imageHeader = {
             .signatureIMG = {'I', 'M', 'G', ' '},
+            .width = bitmap->Width(),
+            .height = bitmap->Height(),
             .imageSize = bitmap->FileSize(),
         };
         WriteStruct(outStream, imageHeader);
-        bitmap->WriteStream(outStream);
+        bitmap->WriteStream(outStream, compressTag);
     }
     // Iterate pixels
     for (auto curr = _fileList.begin(); curr != _fileList.end(); curr++) {
@@ -142,6 +142,13 @@ GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream) const {
                     .y_off = j,
                 });
             }
+        }
+        {
+            GIDF_DiffHeader diffHeader = {
+                .signatureDIFF = {'D', 'I', 'F', 'F'},
+                .diffSize = diffPixels.size(),
+            };
+            WriteStruct(outStream, diffHeader);
         }
         // Write to out stream
         for (auto pixel : diffPixels) {

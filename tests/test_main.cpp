@@ -1,7 +1,9 @@
+#include "mock_bundle.h"
+
 #include "CppUTest/CommandLineTestRunner.h"
 
-#include "test_grape.cpp"
-
 int main(int argc, char **argv) {
+    generateTestingFiles();
+
     return CommandLineTestRunner::RunAllTests(argc, argv);
 }

@@ -4,15 +4,20 @@
 #include "gidf.h"
 #include "grape.h"
 
+#include <grit/cprs.h>
+
 #include <cstdint>
 #include <iostream>
 #include <string>
 
-namespace Grape {
-
+#ifdef ALIGN4
+#undef ALIGN4
 template <typename T> constexpr T ALIGN4(T num) {
     return (((num) + (T)3) & (T)~3);
 }
+#endif
+
+namespace Grape {
 
 template <typename PIXEL_T> class Bitmap {
   private:
@@ -21,7 +26,7 @@ template <typename PIXEL_T> class Bitmap {
 
     long fileSize;
 
-    char *buffer;
+    uint8_t *buffer;
     bool loaded;
 
   public:
@@ -37,8 +42,27 @@ template <typename PIXEL_T> class Bitmap {
     }
     GRAPE_RET LoadFile(const char *filename);
 
-    void WriteStream(std::ostream &outStream) const {
-        outStream.write(buffer, fileSize);
+    void WriteStream(std::ostream &outStream,
+                     ECprsTag compressTag = CPRS_FAKE_TAG) const {
+        RECORD src = {
+            .width = 1,
+            .height = fileSize,
+            .data = (BYTE *)buffer,
+        };
+        RECORD dst = {
+            .width = 1,
+            .height = fileSize,
+            .data = (BYTE *)(new uint8_t[fileSize]),
+        };
+        if (compressTag == CPRS_FAKE_TAG) {
+            // Do not compress
+            memcpy(dst.data, src.data, fileSize);
+        } else {
+            // cprs_compress will free dst.data and "reattach" a new address.
+            cprs_compress(&dst, &src, compressTag);
+        }
+        outStream.write(reinterpret_cast<char *>(dst.data), rec_size(&dst));
+        delete[] dst.data;
     }
 
     long FileSize() const { return fileSize; }
@@ -82,13 +106,14 @@ GRAPE_RET Bitmap<PIXEL_T>::LoadFile(const char *filename) {
         goto err_fclose;
     }
     // Read file contents into buffer
-    buffer = new char[fileSize];
+    buffer = new uint8_t[fileSize];
     if (fread(buffer, 1, fileSize, file) != fileSize) {
         goto err_allocated;
     }
 
     loaded = true;
 
+    fclose(file);
     return GRAPE_OK;
 
 err_allocated:

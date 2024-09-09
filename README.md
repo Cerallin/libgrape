@@ -1,10 +1,15 @@
-# Libgrape
+## Libgrape
 
-A diff image packer library for GBA/NDS.
+A diff image packer library for NDS.
 
-## TODOs
+### Preparation
+
+#### Dependencies
+
+### TODOs
 
 - [x] Data dumper
-- [ ] Data loader
-- [ ] Add compress options
-- [ ] CLI executable
+- [x] Data loader
+- [x] Add compress options
+- [x] CLI executable
+- [ ] image functions
