@@ -11,13 +11,15 @@
 extern "C" {
 #endif
 
-typedef void *grape_malloc_func(size_t);
-typedef void grape_free_func(void *);
+typedef struct _grape_image_bundle {
+    grape_image_t base_img[1];
+    grape_diff_t *diff_series;
+    int diff_count;
+} grape_bundle_t;
 
-GRAPE_RET grape_bundle_load(grape_bundle_t *bundle, FILE *file,
-                            int compressed, grape_malloc_func *grape_malloc);
-void grape_bundle_free(grape_bundle_t *bundle,
-                       grape_free_func *grape_free);
+GRAPE_RET grape_bundle_load(grape_bundle_t *bundle, FILE *file, int compressed,
+                            grape_malloc_func *grape_malloc);
+void grape_bundle_free(grape_bundle_t *bundle, grape_free_func *grape_free);
 
 #ifdef __cplusplus
 }

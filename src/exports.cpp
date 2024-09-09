@@ -1,23 +1,22 @@
-#include "grape.h"
-
 #include "bundle.hpp"
+#include "grape.h"
 
 static uint8_t _imageFlag;
 
-static constexpr bool isCompressed(uint8_t imageFlag) {
+static constexpr bool isCompressed(image_flag_t imageFlag) {
     return (imageFlag & IMG_COMPRESSED);
 }
 
-static constexpr bool is8BitImage(uint8_t imageFlag) {
+static constexpr bool is8BitImage(image_flag_t imageFlag) {
     return (imageFlag & IMG_8B_256_COLOR);
 }
 
-static constexpr bool is16BitImage(uint8_t imageFlag) {
+static constexpr bool is16BitImage(image_flag_t imageFlag) {
     return (imageFlag & IMG_16B_TRUE_COLOR);
 }
 
 grape_bundle_ptr_t grape_init(uint8_t imageWidth, uint8_t imageHeight,
-                              uint8_t imageFlag) {
+                              image_flag_t imageFlag) {
     _imageFlag = imageFlag;
 
     if (is8BitImage(_imageFlag)) {

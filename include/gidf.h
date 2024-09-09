@@ -11,6 +11,8 @@ extern "C" {
 #define IMG_16B_TRUE_COLOR ((uint8_t)0x0C)
 #define IMG_COMPRESSED     ((uint8_t)0x10)
 
+typedef uint8_t image_flag_t;
+
 typedef struct _GIDF_DiffHeader {
     uint8_t signatureDIFF[4];
     uint32_t diffSize;
@@ -25,7 +27,7 @@ typedef struct _GIDF_ImageHeader {
 
 typedef struct GrapeImageDiffFormatHeader {
     uint8_t signatureGIDF[4];
-    uint8_t imageType;
+    image_flag_t imageFlag;
     uint8_t diffCount;
     uint16_t imageWidth;
     uint16_t imageHeight;

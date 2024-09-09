@@ -73,10 +73,12 @@ enable_testing()
 # CppUTest
 add_subdirectory(tests/CppUTest)
 add_executable(runTests
+    lib/bundle_load.c
+    lib/image.c
     tests/test_main.cpp
     tests/test_dump.cpp
     tests/test_load.cpp
-    lib/bundle_load.c
+    tests/test_image.cpp
     tests/mock_decompress.cpp
 )
 target_compile_definitions(runTests PUBLIC GRAPE_DUMP GRAPE_LOAD)

@@ -1,6 +1,6 @@
 include(${CMAKE_SOURCE_DIR}/toolchain-arm.cmake)
 
-add_compile_definitions(GRAPE_LOAD)
+add_compile_definitions(ARM9 GRAPE_LOAD GRAPE_LIB)
 
 # Library sources
 set(GRAPE_SOURCES

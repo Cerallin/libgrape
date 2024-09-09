@@ -7,12 +7,15 @@
 #include "grape.h"
 #include "mock_bundle.h"
 
-static inline void *testing_malloc(size_t size) {
+extern void *testing_malloc(size_t size);
+extern void testing_free(void *ptr);
+
+void *testing_malloc(size_t size) {
     void *buffer = malloc(size);
     return buffer;
 }
 
-static inline void testing_free(void *ptr) { free(ptr); }
+void testing_free(void *ptr) { free(ptr); }
 
 TEST_GROUP(TestGrapeBundleLoad){};
 
