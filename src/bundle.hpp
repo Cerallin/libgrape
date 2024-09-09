@@ -61,14 +61,30 @@ template <typename PIXEL_T> class Bundle {
 
 // Implements
 
-template <typename T> constexpr uint8_t getImageType(void) {
+template <typename T> constexpr image_flag_t getImageType(void) {
+    image_flag_t flag = 0x00;
+
     if (std::is_same_v<T, uint8_t>) {
-        return IMG_8B_256_COLOR;
+        flag = IMG_8B_256_COLOR;
     } else if (std::is_same_v<T, uint16_t>) {
-        return IMG_16B_TRUE_COLOR;
+        flag = IMG_16B_TRUE_COLOR;
     } else {
-        return 0;
+        //
     }
+
+    return flag;
+}
+
+constexpr image_flag_t getCompressType(ECprsTag compressTag) {
+    image_flag_t flag = 0x00;
+
+    if (compressTag == CPRS_FAKE_TAG) {
+        // do nothing
+    } else {
+        flag = IMG_COMPRESSED;
+    }
+
+    return flag;
 }
 
 template <typename PIXEL_T>
@@ -96,7 +112,7 @@ GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream,
     {
         GIDF_Header fileHeader = {
             .signatureGIDF = {'G', 'I', 'D', 'F'},
-            .imageType = getImageType<PIXEL_T>(),
+            .imageFlag = getImageType<PIXEL_T>() | getCompressType(compressTag),
             .diffCount = _fileList.size(),
             .imageWidth = imageWidth,
             .imageHeight = imageHeight,
