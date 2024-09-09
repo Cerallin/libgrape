@@ -1,3 +1,6 @@
 [submodule "tests/CppUTest"]
 	path = tests/CppUTest
 	url = https://github.com/cpputest/cpputest.git
+[submodule "grit"]
+	path = grit
+	url = https://github.com/devkitPro/grit

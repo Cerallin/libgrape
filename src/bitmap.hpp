@@ -4,7 +4,7 @@
 #include "gidf.h"
 #include "grape.h"
 
-#include <grit/cprs.h>
+#include "cprs.h"
 
 #include <cstdint>
 #include <iostream>

@@ -1,4 +1,5 @@
-#include <grit/cprs.h>
+#include "cprs.h"
+
 #include <nds/arm9/decompress.h>
 
 #include <iostream>

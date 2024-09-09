@@ -1,6 +1,18 @@
 cmake_minimum_required(VERSION 3.10)
 project(libgrape VERSION 0.9.0)
 
+include(ExternalProject)
+
+# ExternalProject to build grit
+ExternalProject_Add(grit
+    PREFIX ${CMAKE_BINARY_DIR}/grit
+    SOURCE_DIR ${CMAKE_SOURCE_DIR}/grit
+    CONFIGURE_COMMAND cd ${CMAKE_SOURCE_DIR}/grit && ./autogen.sh
+    BUILD_COMMAND ${CMAKE_SOURCE_DIR}/grit/configure CXXFLAGS=-O2\ -flto --prefix=<INSTALL_DIR> && make -j$(nproc)
+    INSTALL_COMMAND make install
+    BUILD_IN_SOURCE 0
+)
+
 # Standards
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
@@ -53,17 +65,10 @@ add_executable(grape
     src/text.c
 )
 target_compile_definitions(grape PUBLIC GRAPE_DUMP)
-
-# find libgrit
-find_library(GRIT_LIB grit)
-find_path(GRIT_INCLUDE_DIR grit/grit.h)
-if (GRIT_LIB AND GRIT_INCLUDE_DIR)
-    message(STATUS "libgrit found!")
-    include_directories(${GRIT_INCLUDE_DIR})
-    target_link_libraries(grape PRIVATE ${GRIT_LIB})
-else()
-    message(FATAL_ERROR "libgrit not found!")
-endif()
+target_include_directories(grape PRIVATE "${CMAKE_SOURCE_DIR}/grit/libgrit")
+target_include_directories(grape PRIVATE "${CMAKE_SOURCE_DIR}/grit/cldib")
+target_link_libraries(grape "${CMAKE_BINARY_DIR}/grit/src/grit-build/.libs/libgrit.a")
+add_dependencies(grape grit)
 
 install(DIRECTORY include/ DESTINATION include)
 
@@ -84,9 +89,13 @@ add_executable(runTests
 target_compile_definitions(runTests PUBLIC GRAPE_DUMP GRAPE_LOAD)
 set(DEVKITPRO_PATH $ENV{DEVKITPRO})
 target_include_directories(runTests PRIVATE "${DEVKITPRO_PATH}/libnds/include")
+target_include_directories(runTests PRIVATE "${CMAKE_SOURCE_DIR}/grit/libgrit")
+target_include_directories(runTests PRIVATE "${CMAKE_SOURCE_DIR}/grit/cldib")
+target_link_libraries(runTests "${CMAKE_BINARY_DIR}/grit/src/grit-build/.libs/libgrit.a")
+add_dependencies(runTests grit)
 
 # Link CppUTest libraries
-target_link_libraries(runTests CppUTest CppUTestExt ${GRIT_LIB})
+target_link_libraries(runTests CppUTest CppUTestExt)
 
 # Enable tests
 add_test(NAME runTests COMMAND runTests)
