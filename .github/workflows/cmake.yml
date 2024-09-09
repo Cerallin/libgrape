@@ -1,0 +1,42 @@
+name: CMake Build and Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
+
+    container:
+      image: ghcr.io/cerallin/devkitarm-docker:master
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Create build directory
+        run: mkdir -p build-${{ matrix.build_type }} && cd build-${{ matrix.build_type }}
+
+      - name: Build
+        run: |
+          cd build-${{ matrix.build_type }}
+          cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ..
+          make -j$(nproc)
+
+      - name: Test
+        run: |
+          cd build-${{ matrix.build_type }}
+          if [ "${{ matrix.build_type }}" == "Debug" ]; then
+            ctest -VV
+          else
+            ctest
