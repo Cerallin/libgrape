@@ -6,8 +6,14 @@ const char *argp_program_version = SOFTWARE_STRING;
 const char *argp_program_bug_address = BUG_REPORT_URL;
 
 /* Program documentation. */
-const char doc[] =
-    SOFTWARE_STRING " -- " SOFTWARE_DESCRIPTION "\v" SOFTWARE_LONG_DESCRIPTION;
+const char doc[] = SOFTWARE_STRING
+    " -- " SOFTWARE_DESCRIPTION "\n"
+    "\nThis program is part of libgrape, and is free software: you can "
+    "redistribute it and/or modify"
+    "it under the terms of the GNU General Public License as published by "
+    "the Free Software Foundation, either version 3 of the License, or "
+    "(at your option) any later version."
+    "\v" SOFTWARE_LONG_DESCRIPTION;
 
 /* A description of the arguments we accept. */
 const char args_doc[] = "-o OUTPUT_FILE [FILE1 FILE2 ...]";
@@ -52,7 +58,7 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
     return ret;
 }
 
-int parse_arguments(arguments_t *arguments, int argc, const char **argv) {
+int parse_arguments(arguments_t *arguments, int argc, char **argv) {
     argp_parse(&argp, argc, argv, 0, 0, arguments);
 
     if (!arguments->output_file) {

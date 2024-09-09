@@ -23,7 +23,7 @@ set(SOFTWARE_NAME "Grape")
 set(SOFTWARE_DESCRIPTION "CLI helper to generate image diff bundles")
 set(BUG_REPORT_URL "https://github.com/Cerallin/libgrape/issues")
 set(SOFTWARE_LONG_DESCRIPTION
-    "This software is part of libgrape.\\n\\nGenerated bundle is of GIFF format, please see Github for more information."
+    "Generated bundle is of GIDF format, please see Github for more information."
 )
 
 find_package(Git QUIET)
@@ -71,6 +71,9 @@ target_link_libraries(grape "${CMAKE_BINARY_DIR}/grit/src/grit-build/.libs/libgr
 add_dependencies(grape grit)
 
 install(DIRECTORY include/ DESTINATION include)
+
+install(TARGETS grape
+        RUNTIME DESTINATION bin)
 
 # Tests
 enable_testing()

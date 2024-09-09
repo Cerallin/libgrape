@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main(int argc, const char **argv) {
+int main(int argc, char **argv) {
     GRAPE_RET res;
     grape_bundle_ptr_t bundle;
     // Default options

@@ -15,7 +15,7 @@ typedef struct _arguments {
 
 extern struct argp_option options[];
 error_t parse_opt(int key, char *arg, struct argp_state *state);
-int parse_arguments(arguments_t *arguments, int argc, const char **argv);
+int parse_arguments(arguments_t *arguments, int argc, char **argv);
 
 /* Our argp parser. */
 extern struct argp argp;

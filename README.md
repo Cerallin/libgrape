@@ -1,15 +1,27 @@
 ## Libgrape
 
-A diff image packer library for NDS.
+A diff image packer/loader library for NDS.
 
-### Preparation
+### Installation & Usage
 
-#### Dependencies
+```
+cmake \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/path/to/install \
+    /path/to/this-project
+```
 
-### TODOs
+The library files are for DS projects.
+The executable `/somewhere/grape` is for bundle generating, i.e., running on your machine instead of DS.
+Generated bundle file contains 3 parts mostly: info header, base image and diff series.
+`libgrape` provides functions to load from the bundle, but no functions for dumping.
+
+Please use `grape --help` to see more.
+
+### Functions
 
 - [x] Data dumper
 - [x] Data loader
-- [x] Add compress options
-- [x] CLI executable
-- [ ] image functions
+- [x] CLI executable for dumping
+- [x] Some image functions
+- [ ] Compress options
