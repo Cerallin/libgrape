@@ -16,7 +16,7 @@ jobs:
         build_type: [Release, Debug]
 
     container:
-      image: ghcr.io/cerallin/devkitarm-docker:master
+      image: ghcr.io/cerallin/devkitarm-docker:master-81ba91d
 
     steps:
       - name: Checkout
@@ -40,3 +40,4 @@ jobs:
             ctest -VV
           else
             ctest
+          fi
