@@ -39,8 +39,4 @@ jobs:
           printf "_hello_world" > _hello_world
           printf "ciallo_world" > ciallo_world
           ./grape _hello_world ciallo_world -o test.bundle
-          if [ "${{ matrix.build_type }}" == "Debug" ]; then
-            ctest -VV
-          else
-            ctest
-          fi
+          ctest -VV
