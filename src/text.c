@@ -10,7 +10,7 @@ const char *argp_program_bug_address = BUG_REPORT_URL;
 /* Program documentation. */
 const char doc[] = SOFTWARE_STRING
     " -- " SOFTWARE_DESCRIPTION "\n"
-    "\nThis program is part of libgrape, and is free software: you can "
+    "\nThis program is part of libgrape, a free software: you can "
     "redistribute it and/or modify"
     "it under the terms of the GNU General Public License as published by "
     "the Free Software Foundation, either version 3 of the License, or "
@@ -24,10 +24,12 @@ const char args_doc[] = "-m WIDTH -n HEIGHT -o OUTPUT_FILE [FILE1 FILE2 ...]";
 struct argp_option options[] = {
     {"verbose", 'v', 0, 0, "Produce verbose output"},
     {"output", 'o', "FILE", 0, "Output to FILE"},
-    {"width", 'm', "uint16", 0, "Image width"},
-    {"height", 'n', "uint16", 0, "Image height"},
+    {"width", 'm', "uint16", 0, "Specify image width"},
+    {"height", 'n', "uint16", 0, "Specify image height"},
+    {"compress", 'c', 0, 0, "Compress base image (LZ77)"},
     {0, 0, 0, 0, "The following options should be grouped together:"},
-    {0}};
+    {0},
+};
 
 struct argp argp = {options, parse_opt, args_doc, doc};
 
@@ -43,6 +45,10 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
 
     case 'o':
         arguments->output_file = arg;
+        break;
+
+    case 'c':
+        arguments->compress = true;
         break;
 
     case 'm':

@@ -24,4 +24,4 @@ Please use `grape --help` to see more.
 - [x] Data loader
 - [x] CLI executable for dumping
 - [x] Some image functions
-- [ ] Compress options
+- [x] Compress option

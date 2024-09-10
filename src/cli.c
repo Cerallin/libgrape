@@ -11,6 +11,7 @@ int main(int argc, char **argv) {
     grape_bundle_ptr_t bundle;
     // Default options
     arguments_t arguments[1] = {{
+        .compress = false,
         .verbose = 0,
     }};
     int parse_res = parse_arguments(arguments, argc, argv);
