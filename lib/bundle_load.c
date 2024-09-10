@@ -68,7 +68,7 @@ GRAPE_RET load_image(grape_bundle_t *bundle, FILE *file, int compressed,
 }
 
 GRAPE_RET load_diff_series(grape_bundle_t *bundle, FILE *file,
-                         grape_malloc_func *grape_malloc) {
+                           grape_malloc_func *grape_malloc) {
     uint32_t len;
     GRAPE_RET ret = GRAPE_OK;
     GIDF_DiffHeader diff_header[1];
@@ -98,16 +98,31 @@ GRAPE_RET load_diff_series(grape_bundle_t *bundle, FILE *file,
     return ret;
 }
 
-GRAPE_RET grape_bundle_load(grape_bundle_t *bundle, FILE *file, int compressed,
-                            grape_malloc_func *grape_malloc) {
-    load_gidf_header(bundle, file, grape_malloc);
-    load_image(bundle, file, compressed, grape_malloc);
-    load_diff_series(bundle, file, grape_malloc);
+GRAPE_RET grape_bundle_load_call(grape_bundle_t *bundle, FILE *file,
+                                 int compressed,
+                                 grape_malloc_func *grape_malloc) {
+    GRAPE_RET ret;
 
-    return GRAPE_OK;
+    do {
+        ret = load_gidf_header(bundle, file, grape_malloc);
+        if (ret != GRAPE_OK) {
+            break;
+        }
+        ret = load_image(bundle, file, compressed, grape_malloc);
+        if (ret != GRAPE_OK) {
+            break;
+        }
+        ret = load_diff_series(bundle, file, grape_malloc);
+        if (ret != GRAPE_OK) {
+            break;
+        }
+    } while (0);
+
+    return ret;
 }
 
-void grape_bundle_free(grape_bundle_t *bundle, grape_free_func *grape_free) {
+void grape_bundle_free_call(grape_bundle_t *bundle,
+                            grape_free_func *grape_free) {
     for (int i = 0; i < bundle->diff_count; i++) {
         grape_diff_t *diff = &bundle->diff_series[i];
         grape_free(diff->data);

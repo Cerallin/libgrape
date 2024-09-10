@@ -45,8 +45,10 @@ void grape_image_init(grape_image_t *img, int width, int height,
     }
     img->height = height;
 
-    size = grape_image_size_byte(img);
-    img->buffer->as_ptr = grape_malloc(size);
+    if (grape_malloc != NULL) {
+        size = grape_image_size_byte(img);
+        img->buffer->as_ptr = grape_malloc(size);
+    }
 }
 
 size_t grape_image_size(const grape_image_t *img) {
