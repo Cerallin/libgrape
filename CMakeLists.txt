@@ -70,7 +70,7 @@ target_include_directories(grape PRIVATE "${CMAKE_SOURCE_DIR}/grit/cldib")
 target_link_libraries(grape "${CMAKE_BINARY_DIR}/grit/src/grit-build/.libs/libgrit.a")
 add_dependencies(grape grit)
 
-install(DIRECTORY include/ DESTINATION include)
+install(DIRECTORY include/ DESTINATION include/grape)
 
 install(TARGETS grape
         RUNTIME DESTINATION bin)
