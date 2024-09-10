@@ -9,10 +9,10 @@
 
 #define CONST_EXPR constexpr inline
 
-CONST_EXPR uint16_t IMG_WIDTH = 6;
+CONST_EXPR uint16_t IMG_WIDTH = 8;
 CONST_EXPR uint16_t IMG_HEIGHT = 2;
 
-CONST_EXPR char hello_world[] = "_hello_world";
+CONST_EXPR char hello_world[] = "hello_world";
 CONST_EXPR char ciallo_world[] = "ciallo_world";
 
 CONST_EXPR GIDF_Header expectedHeader = {
@@ -24,15 +24,15 @@ CONST_EXPR GIDF_Header expectedHeader = {
     (uint16_t)0x0000,     // preserved
 };
 
-inline void dumpFile(const char *filename) {
+inline void dumpFile(const char *filename, const char *content) {
     std::ofstream stream(filename, std::ios::out);
-    stream << filename;
+    stream << content;
     stream.close();
 }
 
 inline void generateTestingFiles() {
-    dumpFile(hello_world);
-    dumpFile(ciallo_world);
+    dumpFile(hello_world, "_helloxx_worldxx");
+    dumpFile(ciallo_world, "cialloxx_worldxx");
 }
 
 #endif // MOCK_BUNDLE_H

@@ -105,6 +105,13 @@ GRAPE_RET Bitmap<PIXEL_T>::LoadFile(const char *filename) {
     if (fileSize <= 0) {
         goto err_fclose;
     }
+    if (fileSize < (width * height * sizeof(PIXEL_T))) {
+        fprintf(stderr,
+                "File size incompatible: "
+                "expected %ux%u (pixel size: %lu), but got %ld in total.\n",
+                width, height, sizeof(PIXEL_T), fileSize);
+        goto err_fclose;
+    }
     // Read file contents into buffer
     buffer = new uint8_t[fileSize];
     if (fread(buffer, 1, fileSize, file) != fileSize) {

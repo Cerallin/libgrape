@@ -2,6 +2,8 @@
 
 #include "text.h"
 
+#include <inttypes.h>
+
 const char *argp_program_version = SOFTWARE_STRING;
 const char *argp_program_bug_address = BUG_REPORT_URL;
 
@@ -16,13 +18,14 @@ const char doc[] = SOFTWARE_STRING
     "\v" SOFTWARE_LONG_DESCRIPTION;
 
 /* A description of the arguments we accept. */
-const char args_doc[] = "-o OUTPUT_FILE [FILE1 FILE2 ...]";
+const char args_doc[] = "-m WIDTH -n HEIGHT -o OUTPUT_FILE [FILE1 FILE2 ...]";
 
 /* The options we understand. */
 struct argp_option options[] = {
     {"verbose", 'v', 0, 0, "Produce verbose output"},
-    {"output", 'o', "FILE", 0, "Output to FILE instead of standard output"},
-
+    {"output", 'o', "FILE", 0, "Output to FILE"},
+    {"width", 'm', "uint16", 0, "Image width"},
+    {"height", 'n', "uint16", 0, "Image height"},
     {0, 0, 0, 0, "The following options should be grouped together:"},
     {0}};
 
@@ -42,6 +45,18 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
         arguments->output_file = arg;
         break;
 
+    case 'm':
+        if (sscanf(arg, "%" SCNu16, &arguments->width) <= 0) {
+            ret = ARGP_KEY_ERROR;
+        }
+        break;
+
+    case 'n':
+        if (sscanf(arg, "%" SCNu16, &arguments->height) <= 0) {
+            ret = ARGP_KEY_ERROR;
+        }
+        break;
+
     case ARGP_KEY_NO_ARGS:
         argp_usage(state);
 
@@ -59,13 +74,24 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
 }
 
 int parse_arguments(arguments_t *arguments, int argc, char **argv) {
+    int ret = 0;
     argp_parse(&argp, argc, argv, 0, 0, arguments);
 
     if (!arguments->output_file) {
         fprintf(stderr, "Must specify an output file.\n");
         argp_help(&argp, stderr, ARGP_HELP_SHORT_USAGE, argv[0]);
-        return 1;
+        ret = 1;
+    } else if (!arguments->width) {
+        fprintf(stderr, "Must specify image width.\n");
+        argp_help(&argp, stderr, ARGP_HELP_SHORT_USAGE, argv[0]);
+        ret = 1;
+    } else if (!arguments->height) {
+        fprintf(stderr, "Must specify image height.\n");
+        argp_help(&argp, stderr, ARGP_HELP_SHORT_USAGE, argv[0]);
+        ret = 1;
+    } else {
+        //
     }
 
-    return 0;
+    return ret;
 }

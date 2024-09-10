@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
         return parse_res;
     }
 
-    bundle = grape_init(6, 2, IMG_8B_256_COLOR);
+    bundle = grape_init(arguments->width, arguments->height, IMG_8B_256_COLOR);
 
     for (int i = 0; i < arguments->file_count; i++) {
         const char *filename = arguments->files[i];

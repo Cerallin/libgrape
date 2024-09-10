@@ -14,7 +14,7 @@ Bundle<uint8_t> *bundle;
 
 TEST_GROUP(TestGrapeBundleDump) {
 
-    void setup() { bundle = new Bundle<uint8_t>(6, 2); };
+    void setup() { bundle = new Bundle<uint8_t>(IMG_WIDTH, IMG_HEIGHT); };
 
     void teardown() { delete bundle; };
 };

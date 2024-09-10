@@ -15,7 +15,7 @@ extern "C" {
 
 typedef void *grape_bundle_ptr_t;
 
-grape_bundle_ptr_t grape_init(uint8_t imageWidth, uint8_t imageHeight,
+grape_bundle_ptr_t grape_init(uint16_t imageWidth, uint16_t imageHeight,
                               image_flag_t imageFlag);
 GRAPE_RET grape_add_file(grape_bundle_ptr_t bundlePtr, const char *filename,
                          ssize_t len);

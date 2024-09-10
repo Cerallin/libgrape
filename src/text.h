@@ -3,6 +3,7 @@
 
 #include <argp.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /* Used by main to communicate with parse_opt. */
 typedef struct _arguments {
@@ -11,6 +12,8 @@ typedef struct _arguments {
     char *output_file;
     int file_count;
     int compress;
+    uint16_t width;
+    uint16_t height;
 } arguments_t;
 
 extern struct argp_option options[];

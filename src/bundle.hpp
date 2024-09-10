@@ -20,12 +20,15 @@ template <typename PIXEL_T> class Bundle {
     Bitmap<PIXEL_T> *makeBitmap(std::string fileString) const;
 
   public:
-    Bundle(uint16_t imageWidth, uint16_t imageHeight)
-        : imageWidth(imageWidth), imageHeight(imageHeight) {}
+    Bundle(uint16_t imageWidth, uint16_t imageHeight) {
+        constexpr size_t pixel_size = sizeof(PIXEL_T);
+        this->imageWidth = ALIGN4(pixel_size * imageWidth) / pixel_size;
+        this->imageHeight = imageHeight;
+    }
     ~Bundle() = default;
 
     GRAPE_RET Add(std::string filename) {
-        if (access(filename.c_str(), F_OK) == 0) {
+        if (access(filename.c_str(), F_OK | R_OK) == 0) {
             _fileList.push_back(filename);
             return GRAPE_OK;
         } else {
@@ -55,8 +58,8 @@ template <typename PIXEL_T> class Bundle {
         return ret;
     }
 
-    uint8_t Width(void) const { return imageWidth; }
-    uint8_t Height(void) const { return imageHeight; }
+    uint16_t Width(void) const { return imageWidth; }
+    uint16_t Height(void) const { return imageHeight; }
 };
 
 // Implements
@@ -93,6 +96,7 @@ Bitmap<PIXEL_T> *Bundle<PIXEL_T>::makeBitmap(std::string fileString) const {
     Bitmap<PIXEL_T> *bitmap = new Bitmap<PIXEL_T>(Width(), Height());
     res = bitmap->LoadFile(fileString);
     if (res != GRAPE_OK) {
+        delete bitmap;
         return nullptr;
     }
 
@@ -123,6 +127,9 @@ GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream,
     {
         auto curr = _fileList.begin();
         auto bitmap = std::unique_ptr<Bitmap<PIXEL_T>>(makeBitmap(curr[0]));
+        if (bitmap.get() == nullptr) {
+            return GRAPE_FAIL;
+        }
         GIDF_ImageHeader imageHeader = {
             .signatureIMG = {'I', 'M', 'G', ' '},
             .width = bitmap->Width(),
@@ -142,6 +149,12 @@ GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream,
         // Load bitmaps
         auto currBitmap = std::unique_ptr<Bitmap<PIXEL_T>>(makeBitmap(curr[0]));
         auto nextBitmap = std::unique_ptr<Bitmap<PIXEL_T>>(makeBitmap(next[0]));
+        if (currBitmap.get() == nullptr) {
+            return GRAPE_FAIL;
+        }
+        if (nextBitmap.get() == nullptr) {
+            return GRAPE_FAIL;
+        }
         auto currBuffer = currBitmap->Buffer();
         auto nextBuffer = nextBitmap->Buffer();
         auto offsetSize = currBitmap->FileSize() / sizeof(PIXEL_T);

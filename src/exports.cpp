@@ -15,7 +15,7 @@ static constexpr bool is16BitImage(image_flag_t imageFlag) {
     return (imageFlag & IMG_16B_TRUE_COLOR);
 }
 
-grape_bundle_ptr_t grape_init(uint8_t imageWidth, uint8_t imageHeight,
+grape_bundle_ptr_t grape_init(uint16_t imageWidth, uint16_t imageHeight,
                               image_flag_t imageFlag) {
     _imageFlag = imageFlag;
 
@@ -46,7 +46,7 @@ GRAPE_RET grape_add_file(grape_bundle_ptr_t bundlePtr, const char *filename,
 GRAPE_RET grape_dump(const grape_bundle_ptr_t bundlePtr,
                      const char *outputFile) {
     auto compressFlag =
-        isCompressed(_imageFlag) ? CPRS_FAKE_TAG : CPRS_LZ77_TAG;
+        isCompressed(_imageFlag) ? CPRS_LZ77_TAG : CPRS_FAKE_TAG;
 
     if (is8BitImage(_imageFlag)) {
         ((Grape::Bundle<uint8_t> *)bundlePtr)->Dump(outputFile, compressFlag);
