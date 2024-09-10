@@ -22,7 +22,7 @@ TEST_GROUP(TestGrapeBundleDump) {
 TEST(TestGrapeBundleDump, TestInit) { CHECK_FALSE(bundle == nullptr); }
 
 TEST(TestGrapeBundleDump, TestDumpHeader) {
-    const char filename[] = "test.bundle";
+    const char filename[] = "dump.bundle";
 
     CHECK_EQUAL(GRAPE_OK, bundle->Add(hello_world));
     CHECK_EQUAL(GRAPE_OK, bundle->Add(ciallo_world));
