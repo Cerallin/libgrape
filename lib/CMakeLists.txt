@@ -1,6 +1,6 @@
 include(${CMAKE_SOURCE_DIR}/toolchain-arm.cmake)
 
-add_compile_definitions(ARM9 GRAPE_LOAD GRAPE_LIB)
+add_compile_definitions(ARM9 GRAPE_LOAD)
 
 # Library sources
 set(GRAPE_SOURCES
@@ -17,7 +17,7 @@ set_target_properties(grape_shared PROPERTIES
     OUTPUT_NAME "grape"
     C_COMPILER ${CMAKE_C_COMPILER_ARM}
     CXX_COMPILER ${CMAKE_CXX_COMPILER_ARM}
-    SYSROOT ENV{DEVKITARM}
+    SYSROOT ${CMAKE_SYSROOT}
 )
 
 add_library(grape_static STATIC ${GRAPE_SOURCES})
@@ -25,7 +25,7 @@ set_target_properties(grape_static PROPERTIES
     OUTPUT_NAME "grape"
     C_COMPILER ${CMAKE_C_COMPILER_ARM}
     CXX_COMPILER ${CMAKE_CXX_COMPILER_ARM}
-    SYSROOT ENV{DEVKITARM}
+    SYSROOT ${CMAKE_SYSROOT}
 )
 
 # Installation

@@ -5,7 +5,14 @@
 
 #include "image.h"
 
+#ifndef HOST_BUILD
 #include <nds/arm9/sassert.h>
+
+#else
+#define sassert(...) ((void)0)
+
+#endif
+
 #include <stdio.h>
 
 #ifdef __cplusplus
@@ -24,13 +31,13 @@ GRAPE_RET grape_bundle_load_call(grape_bundle_t *bundle, FILE *file,
 void grape_bundle_free_call(grape_bundle_t *bundle,
                             grape_free_func *grape_free);
 
-GRAPE_RET grape_bundle_load(grape_bundle_t *bundle, FILE *file, int compressed,
+inline GRAPE_RET grape_bundle_load(grape_bundle_t *bundle, FILE *file, int compressed,
                             grape_malloc_func *grape_malloc) {
     sassert(grape_malloc != NULL, "grape_malloc(size_t) cannot be NULL!");
 
     return grape_bundle_load_call(bundle, file, compressed, grape_malloc);
 }
-void grape_bundle_free(grape_bundle_t *bundle, grape_free_func *grape_free) {
+inline void grape_bundle_free(grape_bundle_t *bundle, grape_free_func *grape_free) {
     sassert(grape_free != NULL, "grape_free() cannot be NULL!");
 
     return grape_bundle_free_call(bundle, grape_free);

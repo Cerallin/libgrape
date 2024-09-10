@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#ifdef GRAPE_LIB
+#ifndef HOST_BUILD
 #include <nds/ndstypes.h>
 #else
 #define ITCM_CODE

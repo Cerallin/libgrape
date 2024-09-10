@@ -64,7 +64,7 @@ add_executable(grape
     src/exports.cpp
     src/text.c
 )
-target_compile_definitions(grape PUBLIC GRAPE_DUMP)
+target_compile_definitions(grape PUBLIC HOST_BUILD GRAPE_DUMP)
 target_include_directories(grape PRIVATE "${CMAKE_SOURCE_DIR}/grit/libgrit")
 target_include_directories(grape PRIVATE "${CMAKE_SOURCE_DIR}/grit/cldib")
 target_link_libraries(grape "${CMAKE_BINARY_DIR}/grit/src/grit-build/.libs/libgrit.a")
@@ -89,7 +89,7 @@ add_executable(runTests
     tests/test_image.cpp
     tests/mock_decompress.cpp
 )
-target_compile_definitions(runTests PUBLIC GRAPE_DUMP GRAPE_LOAD)
+target_compile_definitions(runTests PUBLIC HOST_BUILD GRAPE_DUMP GRAPE_LOAD)
 set(DEVKITPRO_PATH $ENV{DEVKITPRO})
 target_include_directories(runTests PRIVATE "${DEVKITPRO_PATH}/libnds/include")
 target_include_directories(runTests PRIVATE "${CMAKE_SOURCE_DIR}/grit/libgrit")

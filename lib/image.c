@@ -2,7 +2,7 @@
 
 #include <assert.h>
 
-#ifdef GRAPE_LIB
+#ifndef HOST_BUILD
 #include <nds/dma.h>
 #include <nds/ndstypes.h>
 
