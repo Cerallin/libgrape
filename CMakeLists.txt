@@ -89,7 +89,7 @@ add_executable(runTests
     tests/test_image.cpp
     tests/mock_decompress.cpp
 )
-target_compile_definitions(runTests PUBLIC HOST_BUILD GRAPE_DUMP GRAPE_LOAD)
+target_compile_definitions(runTests PUBLIC HOST_BUILD GRAPE_DUMP)
 set(DEVKITPRO_PATH $ENV{DEVKITPRO})
 target_include_directories(runTests PRIVATE "${DEVKITPRO_PATH}/libnds/include")
 target_include_directories(runTests PRIVATE "${CMAKE_SOURCE_DIR}/grit/libgrit")

@@ -25,7 +25,7 @@ TEST(TestGrapeBundleLoad, TestLoad) {
     CHECK_EQUAL(0, access(filename, F_OK));
 
     auto file = fopen(filename, "rb");
-    CHECK_EQUAL(GRAPE_OK, grape_bundle_load(bundle, file, 0, &testing_malloc));
+    CHECK_EQUAL(GRAPE_OK, grape_bundle_load(bundle, file, &testing_malloc));
     fclose(file);
 
     CHECK_EQUAL(expectedHeader.diffCount, bundle->diff_count);

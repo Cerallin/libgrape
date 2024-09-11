@@ -5,6 +5,7 @@
 #include <string.h>
 
 static GRAPE_RET load_gidf_header(grape_bundle_t *bundle, FILE *file,
+                                  image_flag_t *flag,
                                   grape_malloc_func *grape_malloc) {
     GRAPE_RET ret;
     uint8_t count;
@@ -18,16 +19,19 @@ static GRAPE_RET load_gidf_header(grape_bundle_t *bundle, FILE *file,
         ret = GRAPE_ERR;
     } else {
         ret = GRAPE_OK;
-    }
 
-    count = file_header->diffCount;
-    bundle->diff_count = count;
-    bundle->diff_series = grape_malloc(count * sizeof(grape_diff_t));
+        count = file_header->diffCount;
+        bundle->diff_count = count;
+        bundle->diff_series = grape_malloc(count * sizeof(grape_diff_t));
+        if (flag != NULL) {
+            *flag = file_header->imageFlag;
+        }
+    }
 
     return ret;
 }
 
-GRAPE_RET load_image(grape_bundle_t *bundle, FILE *file, int compressed,
+GRAPE_RET load_image(grape_bundle_t *bundle, FILE *file, image_flag_t flag,
                      grape_malloc_func *grape_malloc) {
     GRAPE_RET ret = GRAPE_OK;
     GIDF_ImageHeader image_header[1];
@@ -41,14 +45,12 @@ GRAPE_RET load_image(grape_bundle_t *bundle, FILE *file, int compressed,
         uint32_t size;
         uint32_t buffer_size;
         grape_image_t *img = bundle->base_img;
-        // TODO ALIGN4
-        img->width = image_header->width;
-        img->height = image_header->height;
-        buffer_size = image_header->imageSize;
-        img->buffer->as_ptr =
-            grape_malloc(img->width * img->height * sizeof(img->pixel_size));
+        // Initialize image
+        grape_image_init(img, image_header->width, image_header->height, flag,
+                         grape_malloc);
+        buffer_size = grape_image_size_byte(img);
         // Load image content
-        if (compressed) {
+        if (flag & IMG_COMPRESSED) {
             char buffer[buffer_size];
             size = fread(buffer, 1, buffer_size, file);
             if (size != buffer_size) {
@@ -99,19 +101,22 @@ GRAPE_RET load_diff_series(grape_bundle_t *bundle, FILE *file,
 }
 
 GRAPE_RET grape_bundle_load_call(grape_bundle_t *bundle, FILE *file,
-                                 int compressed,
                                  grape_malloc_func *grape_malloc) {
     GRAPE_RET ret;
 
     do {
-        ret = load_gidf_header(bundle, file, grape_malloc);
+        image_flag_t flag;
+
+        ret = load_gidf_header(bundle, file, &flag, grape_malloc);
         if (ret != GRAPE_OK) {
             break;
         }
-        ret = load_image(bundle, file, compressed, grape_malloc);
+
+        ret = load_image(bundle, file, flag, grape_malloc);
         if (ret != GRAPE_OK) {
             break;
         }
+
         ret = load_diff_series(bundle, file, grape_malloc);
         if (ret != GRAPE_OK) {
             break;

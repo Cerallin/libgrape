@@ -9,7 +9,7 @@ extern "C" {
 #include <nds/ndstypes.h>
 #else
 #define ITCM_CODE
-#endif // GRAPE_LOAD
+#endif // HOST_BUILD
 
 typedef struct _area {
     int x_off;

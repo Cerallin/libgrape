@@ -1,3 +1,4 @@
 .vscode/
 .devcontainer.json
 build*/
+Dockerfile
