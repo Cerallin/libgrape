@@ -24,7 +24,7 @@ template <typename PIXEL_T> class Bitmap {
     uint16_t width;
     uint16_t height;
 
-    long fileSize;
+    size_t fileSize;
 
     uint8_t *buffer;
     bool loaded;
@@ -42,8 +42,7 @@ template <typename PIXEL_T> class Bitmap {
     }
     GRAPE_RET LoadFile(const char *filename);
 
-    void WriteStream(std::ostream &outStream,
-                     ECprsTag compressTag = CPRS_FAKE_TAG) const {
+    void Compress(ECprsTag compressTag = CPRS_FAKE_TAG) {
         RECORD src = {
             .width = 1,
             .height = fileSize,
@@ -61,8 +60,15 @@ template <typename PIXEL_T> class Bitmap {
             // cprs_compress will free dst.data and "reattach" a new address.
             cprs_compress(&dst, &src, compressTag);
         }
-        outStream.write(reinterpret_cast<char *>(dst.data), rec_size(&dst));
-        delete[] dst.data;
+
+        this->fileSize = rec_size(&dst);
+
+        delete[] buffer;
+        buffer = dst.data;
+    }
+
+    void WriteStream(std::ostream &outStream) const {
+        outStream.write(reinterpret_cast<const char *>(buffer), FileSize());
     }
 
     long FileSize() const { return fileSize; }

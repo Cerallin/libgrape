@@ -155,14 +155,17 @@ GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream,
         if (bitmap.get() == nullptr) {
             return GRAPE_FAIL;
         }
+        bitmap->Compress(compressTag);
+        
         GIDF_ImageHeader imageHeader = {
             .signatureIMG = {'I', 'M', 'G', ' '},
             .width = bitmap->Width(),
             .height = bitmap->Height(),
             .imageSize = bitmap->FileSize(),
         };
+
         WriteStruct(outStream, imageHeader);
-        bitmap->WriteStream(outStream, compressTag);
+        bitmap->WriteStream(outStream);
     }
     // For 8-bit color image, if palette is set, dump palette
     if (std::is_same_v<PIXEL_T, uint8_t>) {

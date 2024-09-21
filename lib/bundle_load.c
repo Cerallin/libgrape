@@ -52,7 +52,7 @@ GRAPE_RET load_image(grape_bundle_t *bundle, FILE *file, image_flag_t flag,
         // Initialize image
         grape_image_init(img, image_header->width, image_header->height, flag,
                          grape_malloc);
-        buffer_size = grape_image_size_byte(img);
+        buffer_size = image_header->imageSize;
         // Load image content
         if (flag & IMG_COMPRESSED) {
             char buffer[buffer_size];
