@@ -26,7 +26,14 @@ int main(int argc, char **argv) {
     {
         const char *palette_file = arguments->palette_file;
         if (palette_file) {
-            grape_add_palette_file(bundle, palette_file, strlen(palette_file));
+            res = grape_add_palette_file(bundle, palette_file,
+                                         strlen(palette_file));
+            if (res != GRAPE_OK) {
+                fprintf(stderr, "%d\n", res);
+                fprintf(stderr, "Failed to open palette file: %s\n",
+                        palette_file);
+                return 1;
+            }
         }
     }
 
