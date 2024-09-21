@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <memory>
+#include <sstream>
 #include <unistd.h>
 #include <vector>
 
@@ -13,27 +14,32 @@ namespace Grape {
 
 template <typename PIXEL_T> class Bundle {
   private:
+    std::string paletteFile;
+
     std::vector<std::string> _fileList;
     uint16_t imageWidth;
     uint16_t imageHeight;
 
-    Bitmap<PIXEL_T> *makeBitmap(std::string fileString) const;
+    Bitmap<PIXEL_T> *makeBitmap(const std::string &fileString) const;
 
   public:
     Bundle(uint16_t imageWidth, uint16_t imageHeight) {
-        constexpr size_t pixel_size = sizeof(PIXEL_T);
-        this->imageWidth = ALIGN4(pixel_size * imageWidth) / pixel_size;
+        constexpr size_t pixelSize = sizeof(PIXEL_T);
+        this->imageWidth = ALIGN4(pixelSize * imageWidth) / pixelSize;
         this->imageHeight = imageHeight;
     }
     ~Bundle() = default;
 
-    GRAPE_RET Add(std::string filename) {
+    GRAPE_RET Add(const std::string &filename) {
+        GRAPE_RET ret = GRAPE_OK;
+
         if (access(filename.c_str(), F_OK | R_OK) == 0) {
             _fileList.push_back(filename);
-            return GRAPE_OK;
         } else {
-            return GRAPE_FAIL;
+            ret = GRAPE_FAIL;
         }
+
+        return ret;
     }
 
     GRAPE_RET Add(const char *filename, int len) {
@@ -41,10 +47,28 @@ template <typename PIXEL_T> class Bundle {
         return Add(str);
     }
 
+    GRAPE_RET AddPalette(const std::string &paletteStr) {
+        GRAPE_RET ret = GRAPE_OK;
+
+        if (access(paletteStr.c_str(), F_OK | R_OK) == 0) {
+            this->paletteFile = paletteStr;
+        } else {
+            ret = GRAPE_FAIL;
+        }
+
+        return ret;
+    }
+
+    GRAPE_RET AddPalette(const char *paletteFile, int len) {
+        std::string paletteStr(paletteFile, len);
+
+        return AddPalette(paletteStr);
+    }
+
     GRAPE_RET Dump(std::ostream &outStream,
                    ECprsTag compressTag = CPRS_FAKE_TAG) const;
 
-    GRAPE_RET Dump(std::string fileString,
+    GRAPE_RET Dump(std::string &fileString,
                    ECprsTag compressTag = CPRS_FAKE_TAG) const {
         return Dump(fileString.c_str(), compressTag);
     }
@@ -91,7 +115,8 @@ constexpr image_flag_t getCompressType(ECprsTag compressTag) {
 }
 
 template <typename PIXEL_T>
-Bitmap<PIXEL_T> *Bundle<PIXEL_T>::makeBitmap(std::string fileString) const {
+Bitmap<PIXEL_T> *
+Bundle<PIXEL_T>::makeBitmap(const std::string &fileString) const {
     GRAPE_RET res;
     Bitmap<PIXEL_T> *bitmap = new Bitmap<PIXEL_T>(Width(), Height());
     res = bitmap->LoadFile(fileString);
@@ -138,6 +163,33 @@ GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream,
         };
         WriteStruct(outStream, imageHeader);
         bitmap->WriteStream(outStream, compressTag);
+    }
+    // For 8-bit color image, if palette is set, dump palette
+    if (std::is_same_v<PIXEL_T, uint8_t>) {
+        if (paletteFile.empty()) {
+            return GRAPE_ERR;
+        }
+
+        std::ifstream stream(paletteFile, std::ios::binary | std::ios::ate);
+        if (!stream) {
+            return GRAPE_FAIL;
+        }
+
+        auto fileSize = stream.tellg();
+        stream.seekg(0, std::ios::beg);
+
+        size_t paletteSize = ALIGN4(fileSize);
+        std::unique_ptr<char[]> buffer(new char[paletteSize]());
+        if (!stream.read(buffer.get(), fileSize)) {
+            return GRAPE_ERR;
+        }
+
+        GIDF_PaletteHeader paletteHeader = {
+            .signaturePalette = {'P', 'A', 'L', ' '},
+            .paletteSize = paletteSize,
+        };
+        WriteStruct(outStream, paletteHeader);
+        outStream.write(buffer.get(), paletteSize);
     }
     // Iterate pixels
     for (auto curr = _fileList.begin(); curr != _fileList.end(); curr++) {

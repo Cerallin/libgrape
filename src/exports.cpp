@@ -43,6 +43,23 @@ GRAPE_RET grape_add_file(grape_bundle_ptr_t bundlePtr, const char *filename,
     return ret;
 }
 
+GRAPE_RET grape_add_palette_file(grape_bundle_ptr_t bundlePtr,
+                                 const char *palette_file, ssize_t len) {
+    GRAPE_RET ret;
+
+    if (is8BitImage(_imageFlag)) {
+        ret = ((Grape::Bundle<uint8_t> *)bundlePtr)
+                  ->AddPalette(palette_file, len);
+    } else if (is16BitImage(_imageFlag)) {
+        ret = ((Grape::Bundle<uint16_t> *)bundlePtr)
+                  ->AddPalette(palette_file, len);
+    } else {
+        ret = GRAPE_ERR;
+    }
+
+    return ret;
+}
+
 GRAPE_RET grape_dump(const grape_bundle_ptr_t bundlePtr,
                      const char *outputFile) {
     auto compressFlag =

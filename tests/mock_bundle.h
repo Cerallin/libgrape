@@ -14,6 +14,7 @@ CONST_EXPR uint16_t IMG_HEIGHT = 2;
 
 CONST_EXPR char hello_world[] = "hello_world";
 CONST_EXPR char ciallo_world[] = "ciallo_world";
+CONST_EXPR char palette_file[] = "test_palette";
 
 CONST_EXPR GIDF_Header expectedHeader = {
     {'G', 'I', 'D', 'F'}, // header
@@ -33,6 +34,7 @@ inline void dumpFile(const char *filename, const char *content) {
 inline void generateTestingFiles() {
     dumpFile(hello_world, "_helloxx_worldxx");
     dumpFile(ciallo_world, "cialloxx_worldxx");
+    dumpFile(palette_file, "tests_palette");
 }
 
 #endif // MOCK_BUNDLE_H

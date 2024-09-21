@@ -37,7 +37,7 @@ template <typename PIXEL_T> class Bitmap {
         }
     }
 
-    GRAPE_RET LoadFile(std::string fileString) {
+    GRAPE_RET LoadFile(const std::string &fileString) {
         return LoadFile(fileString.c_str());
     }
     GRAPE_RET LoadFile(const char *filename);

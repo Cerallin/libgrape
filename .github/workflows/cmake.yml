@@ -38,5 +38,6 @@ jobs:
           cd build-${{ matrix.build_type }}
           printf "_helloxx_worldxx" > _hello_world
           printf "cialloxx_worldxx" > ciallo_world
-          ./grape -m8 -n2 _hello_world ciallo_world -o test.bundle
+          printf "testing_palette" > test_palette
+          ./grape -8 -m8 -n2 -p test_palette _hello_world ciallo_world -o test.bundle
           ctest -VV

@@ -4,6 +4,10 @@
 #include <nds/arm9/decompress.h>
 #include <string.h>
 
+static inline int sigcmp(const char expected[4], const char signature[4]) {
+    return memcmp(expected, signature, 4);
+}
+
 static GRAPE_RET load_gidf_header(grape_bundle_t *bundle, FILE *file,
                                   image_flag_t *flag,
                                   grape_malloc_func *grape_malloc) {
@@ -15,7 +19,7 @@ static GRAPE_RET load_gidf_header(grape_bundle_t *bundle, FILE *file,
     fseek(file, 0, SEEK_SET);
     // Read file header
     fread(file_header, sizeof(GIDF_Header), 1, file);
-    if (memcmp(file_header->signatureGIDF, SIG_GIDF, sizeof(SIG_GIDF)) != 0) {
+    if (sigcmp(SIG_GIDF, file_header->signatureGIDF) != 0) {
         ret = GRAPE_ERR;
     } else {
         ret = GRAPE_OK;
@@ -39,7 +43,7 @@ GRAPE_RET load_image(grape_bundle_t *bundle, FILE *file, image_flag_t flag,
 
     // Read image header
     fread(image_header, sizeof(GIDF_ImageHeader), 1, file);
-    if (memcmp(image_header->signatureIMG, SIG_IMG, sizeof(SIG_IMG)) != 0) {
+    if (sigcmp(SIG_IMG, image_header->signatureIMG) != 0) {
         ret = GRAPE_ERR;
     } else {
         uint32_t size;
@@ -69,6 +73,35 @@ GRAPE_RET load_image(grape_bundle_t *bundle, FILE *file, image_flag_t flag,
     return ret;
 }
 
+GRAPE_RET load_palette(grape_bundle_t *bundle, FILE *file, image_flag_t flag,
+                       grape_malloc_func *grape_malloc) {
+    GRAPE_RET ret = GRAPE_OK;
+    const char SIG_PAL[4] = {'P', 'A', 'L', ' '};
+
+    // Only 8-bit color image has palette
+    if (flag & IMG_8B_256_COLOR) {
+        GIDF_PaletteHeader paletteHeader[1];
+        // Read file header
+        fread(paletteHeader, sizeof(GIDF_PaletteHeader), 1, file);
+        if (sigcmp(SIG_PAL, paletteHeader->signaturePalette) != 0) {
+            ret = GRAPE_ERR;
+        } else {
+            uint32_t palette_size = paletteHeader->paletteSize;
+            void *ptr = grape_malloc(palette_size);
+
+            bundle->palette_size = palette_size;
+            bundle->palette = ptr;
+            fread(bundle->palette, 1, palette_size, file);
+
+            ret = GRAPE_OK;
+        }
+    } else {
+        // do nothing
+    }
+
+    return ret;
+}
+
 GRAPE_RET load_diff_series(grape_bundle_t *bundle, FILE *file,
                            grape_malloc_func *grape_malloc) {
     uint32_t len;
@@ -80,9 +113,7 @@ GRAPE_RET load_diff_series(grape_bundle_t *bundle, FILE *file,
         grape_diff_t *diff = &bundle->diff_series[i];
         // Read diff header
         fread(diff_header, sizeof(GIDF_DiffHeader), 1, file);
-        int cmp =
-            memcmp(diff_header->signatureDIFF, SIG_DIFF, sizeof(SIG_DIFF));
-        if (cmp != 0) {
+        if (sigcmp(SIG_DIFF, diff_header->signatureDIFF) != 0) {
             ret = GRAPE_ERR;
             break;
         }
@@ -117,6 +148,11 @@ GRAPE_RET grape_bundle_load_call(grape_bundle_t *bundle, FILE *file,
             break;
         }
 
+        ret = load_palette(bundle, file, flag, grape_malloc);
+        if (ret != GRAPE_OK) {
+            break;
+        }
+
         ret = load_diff_series(bundle, file, grape_malloc);
         if (ret != GRAPE_OK) {
             break;
@@ -134,4 +170,7 @@ void grape_bundle_free_call(grape_bundle_t *bundle,
     }
     grape_free(bundle->diff_series);
     grape_free(bundle->base_img->buffer->as_ptr);
+    if (bundle->palette_size) {
+        grape_free(bundle->palette);
+    }
 }

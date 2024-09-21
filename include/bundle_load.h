@@ -19,8 +19,10 @@ extern "C" {
 
 typedef struct _grape_image_bundle {
     grape_image_t base_img[1];
+    void *palette;
     grape_diff_t *diff_series;
-    int diff_count;
+    uint16_t palette_size;
+    uint16_t diff_count;
 } grape_bundle_t;
 
 GRAPE_RET grape_bundle_load_call(grape_bundle_t *bundle, FILE *file,

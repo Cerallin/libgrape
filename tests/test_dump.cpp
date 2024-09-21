@@ -24,8 +24,10 @@ TEST(TestGrapeBundleDump, TestInit) { CHECK_FALSE(bundle == nullptr); }
 TEST(TestGrapeBundleDump, TestDumpHeader) {
     const char filename[] = "dump.bundle";
 
-    CHECK_EQUAL(GRAPE_OK, bundle->Add(hello_world));
-    CHECK_EQUAL(GRAPE_OK, bundle->Add(ciallo_world));
+    CHECK_EQUAL(GRAPE_OK, bundle->Add(hello_world, sizeof(hello_world)));
+    CHECK_EQUAL(GRAPE_OK, bundle->Add(ciallo_world, sizeof(ciallo_world)));
+    CHECK_EQUAL(GRAPE_OK,
+                bundle->AddPalette(palette_file, sizeof(palette_file)));
 
     CHECK_EQUAL(GRAPE_OK, bundle->Dump(filename));
     CHECK(access(filename, F_OK) == 0);

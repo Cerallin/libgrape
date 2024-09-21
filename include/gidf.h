@@ -18,6 +18,11 @@ typedef struct _GIDF_DiffHeader {
     uint32_t diffSize;
 } GIDF_DiffHeader;
 
+typedef struct _GIDF_PaletteHeader {
+    uint8_t signaturePalette[4];
+    uint32_t paletteSize;
+} GIDF_PaletteHeader;
+
 typedef struct _GIDF_ImageHeader {
     uint8_t signatureIMG[4];
     uint16_t width;
@@ -43,8 +48,8 @@ typedef struct GrapeImageDiffFormatHeader {
 #include <iostream>
 
 template <typename T>
-inline void WriteStruct(std::ostream &outStream, T header) {
-    outStream.write(reinterpret_cast<char *>(&header), sizeof(T));
+inline void WriteStruct(std::ostream &outStream, const T &header) {
+    outStream.write(reinterpret_cast<const char *>(&header), sizeof(T));
 }
 #endif
 

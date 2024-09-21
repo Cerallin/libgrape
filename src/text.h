@@ -1,6 +1,8 @@
 #ifndef ARGS_H
 #define ARGS_H
 
+#include "grape.h"
+
 #include <argp.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -10,10 +12,11 @@ typedef struct _arguments {
     bool verbose;
     char **files;
     char *output_file;
+    char *palette_file;
     int file_count;
-    int compress;
     uint16_t width;
     uint16_t height;
+    image_flag_t image_flag;
 } arguments_t;
 
 extern struct argp_option options[];

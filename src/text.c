@@ -27,6 +27,9 @@ struct argp_option options[] = {
     {"width", 'm', "uint16", 0, "Specify image width"},
     {"height", 'n', "uint16", 0, "Specify image height"},
     {"compress", 'c', 0, 0, "Compress base image (LZ77)"},
+    {"palette", 'p', "FILE", 0, "Specify palette binary file, usually *.pal.bin"},
+    {0, '8', 0, 0, "8-bit images (default)"},
+    {0, 'g', 0, 0, "16-bit images"},
     {0, 0, 0, 0, "The following options should be grouped together:"},
     {0},
 };
@@ -48,7 +51,19 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
         break;
 
     case 'c':
-        arguments->compress = true;
+        arguments->image_flag |= IMG_COMPRESSED;
+        break;
+
+    case '8':
+        arguments->image_flag |= IMG_8B_256_COLOR;
+        break;
+
+    case 'g':
+        arguments->image_flag |= IMG_16B_TRUE_COLOR;
+        break;
+
+    case 'p':
+        arguments->palette_file = arg;
         break;
 
     case 'm':
@@ -79,11 +94,11 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
     return ret;
 }
 
-int parse_arguments(arguments_t *arguments, int argc, char **argv) {
+int parse_arguments(arguments_t *arguments, int argc, char **const argv) {
     int ret = 0;
     argp_parse(&argp, argc, argv, 0, 0, arguments);
 
-    if (!arguments->output_file) {
+    if (arguments->output_file == NULL) {
         fprintf(stderr, "Must specify an output file.\n");
         argp_help(&argp, stderr, ARGP_HELP_SHORT_USAGE, argv[0]);
         ret = 1;
@@ -95,6 +110,17 @@ int parse_arguments(arguments_t *arguments, int argc, char **argv) {
         fprintf(stderr, "Must specify image height.\n");
         argp_help(&argp, stderr, ARGP_HELP_SHORT_USAGE, argv[0]);
         ret = 1;
+    } else if ((arguments->image_flag & IMG_8B_256_COLOR) &&
+               (arguments->image_flag & IMG_16B_TRUE_COLOR)) {
+        fprintf(stderr, "You can't specify both 8-bit and 16-bit!\n");
+        ret = 1;
+    } else if ((arguments->image_flag & IMG_8B_256_COLOR) &&
+               arguments->palette_file == NULL) {
+        fprintf(stderr, "Must specify a palette file for 8-bit color image!\n");
+        ret = 1;
+    } else if ((arguments->image_flag & IMG_16B_TRUE_COLOR) &&
+               arguments->palette_file != NULL) {
+        fprintf(stderr, "Palette file will be ignored for 16-bit color.\n");
     } else {
         //
     }
