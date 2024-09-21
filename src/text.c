@@ -27,7 +27,8 @@ struct argp_option options[] = {
     {"width", 'm', "uint16", 0, "Specify image width"},
     {"height", 'n', "uint16", 0, "Specify image height"},
     {"compress", 'c', 0, 0, "Compress base image (LZ77)"},
-    {"palette", 'p', "FILE", 0, "Specify palette binary file, usually *.pal.bin"},
+    {"palette", 'p', "FILE", 0,
+     "Specify palette binary file, usually *.pal.bin"},
     {0, '8', 0, 0, "8-bit images (default)"},
     {0, 'g', 0, 0, "16-bit images"},
     {0, 0, 0, 0, "The following options should be grouped together:"},
@@ -113,6 +114,10 @@ int parse_arguments(arguments_t *arguments, int argc, char **const argv) {
     } else if ((arguments->image_flag & IMG_8B_256_COLOR) &&
                (arguments->image_flag & IMG_16B_TRUE_COLOR)) {
         fprintf(stderr, "You can't specify both 8-bit and 16-bit!\n");
+        ret = 1;
+    } else if (!(arguments->image_flag & IMG_8B_256_COLOR) &&
+               !(arguments->image_flag & IMG_16B_TRUE_COLOR)) {
+        fprintf(stderr, "Must specify color bit-depth: 8-bit(-8)/16-bit(-g)!\n");
         ret = 1;
     } else if ((arguments->image_flag & IMG_8B_256_COLOR) &&
                arguments->palette_file == NULL) {
