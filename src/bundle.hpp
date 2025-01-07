@@ -156,7 +156,7 @@ GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream,
             return GRAPE_FAIL;
         }
         bitmap->Compress(compressTag);
-        
+
         GIDF_ImageHeader imageHeader = {
             .signatureIMG = {'I', 'M', 'G', ' '},
             .width = bitmap->Width(),
@@ -217,9 +217,9 @@ GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream,
         // Generate diff
         std::vector<grape_pixel_t> diffPixels;
         for (ssize_t offset = 0; offset < offsetSize; offset++) {
-            uint8_t i = offset % width;
-            uint8_t j = offset / width;
             if (currBuffer[offset] != nextBuffer[offset]) {
+                uint8_t i = offset % width;
+                uint8_t j = offset / width;
                 diffPixels.push_back((grape_pixel_t){
                     .color = nextBuffer[offset],
                     .x_off = i,

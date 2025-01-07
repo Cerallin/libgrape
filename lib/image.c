@@ -106,9 +106,7 @@ GRAPE_RET grape_image_composite(grape_image_t *dest, const grape_image_t *src,
             offset = BITMAP_OFFSET((i - x_start + area.x_off), src->width,
                                    (j - y_start + area.y_off));
             uint8_t color = src->buffer->as_u8[offset];
-            if (TRANSPARENT(color)) {
-                continue;
-            }
+            // FIXME no transparent bit for uint8_t, should check palette
 
             offset = BITMAP_OFFSET(i, dest->width, j);
             dest->buffer->as_u8[offset] = color;
