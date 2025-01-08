@@ -13,7 +13,7 @@ static inline void dmaFillWords(uint32_t value, void *dest, uint32_t size) {
     memset(dest, value, size);
 }
 
-#endif // GRAPE_LIB
+#endif // HOST_BUILD
 
 #define TRANSPARENT(color)     (!((color) & BIT(15)))
 #define BITMAP_OFFSET(x, w, y) (((y) * (w)) + (x))

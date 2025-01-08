@@ -7,8 +7,6 @@ extern "C" {
 
 #ifndef HOST_BUILD
 #include <nds/ndstypes.h>
-#else
-#define ITCM_CODE
 #endif // HOST_BUILD
 
 typedef struct _area {
@@ -51,7 +49,7 @@ size_t grape_image_size_byte(const grape_image_t *img);
 void grape_image_flush(grape_image_t *img);
 // Composite two images.
 GRAPE_RET grape_image_composite(grape_image_t *dest, const grape_image_t *src,
-                                int x, int y, grape_area_t area) ITCM_CODE;
+                                int x, int y, grape_area_t area);
 // Copy one image to another.
 GRAPE_RET grape_image_cover(grape_image_t *dest, const grape_image_t *src,
                             int x, int y);
@@ -59,8 +57,7 @@ GRAPE_RET grape_image_cover(grape_image_t *dest, const grape_image_t *src,
 GRAPE_RET grape_image_crop(grape_image_t *dest, const grape_image_t *src,
                            int x_off, int y_off);
 // Update image with the diff info
-GRAPE_RET grape_image_load_diff(grape_image_t *img,
-                                const grape_diff_t *diff) ITCM_CODE;
+GRAPE_RET grape_image_load_diff(grape_image_t *img, const grape_diff_t *diff);
 // Flip an image horizontally
 GRAPE_RET grape_image_horizontal_flip(grape_image_t *img);
 // Flip an image vertically
