@@ -8,9 +8,10 @@ static inline int sigcmp(const char expected[4], const char signature[4]) {
     return memcmp(expected, signature, 4);
 }
 
-static GRAPE_RET load_gidf_header(grape_bundle_t *bundle, FILE *file,
-                                  image_flag_t *flag,
-                                  grape_malloc_func *grape_malloc) {
+// Returns palette count, -1 on error
+static uint8_t load_gidf_header(grape_bundle_t *bundle, FILE *file,
+                                image_flag_t *flag,
+                                grape_malloc_func *grape_malloc) {
     GRAPE_RET ret;
     uint8_t count;
     GIDF_Header file_header[1];
@@ -20,9 +21,9 @@ static GRAPE_RET load_gidf_header(grape_bundle_t *bundle, FILE *file,
     // Read file header
     fread(file_header, sizeof(GIDF_Header), 1, file);
     if (sigcmp(SIG_GIDF, file_header->signatureGIDF) != 0) {
-        ret = GRAPE_ERR;
+        ret = -1;
     } else {
-        ret = GRAPE_OK;
+        ret = file_header->paletteCount;
 
         count = file_header->diffCount;
         bundle->diff_count = count;
@@ -73,8 +74,9 @@ GRAPE_RET load_image(grape_bundle_t *bundle, FILE *file, image_flag_t flag,
     return ret;
 }
 
-GRAPE_RET load_palette(grape_bundle_t *bundle, FILE *file, image_flag_t flag,
-                       grape_malloc_func *grape_malloc) {
+GRAPE_RET load_palettes(grape_bundle_t *bundle, FILE *file, image_flag_t flag,
+                        uint16_t palette_count,
+                        grape_malloc_func *grape_malloc) {
     GRAPE_RET ret = GRAPE_OK;
     const char SIG_PAL[4] = {'P', 'A', 'L', ' '};
 
@@ -89,7 +91,7 @@ GRAPE_RET load_palette(grape_bundle_t *bundle, FILE *file, image_flag_t flag,
             uint32_t palette_size = paletteHeader->paletteSize;
             void *ptr = grape_malloc(palette_size);
 
-            bundle->palette_size = palette_size;
+            bundle->palette_size = palette_size / palette_count;
             bundle->palette = ptr;
             fread(bundle->palette, 1, palette_size, file);
 
@@ -138,8 +140,9 @@ GRAPE_RET grape_bundle_load_call(grape_bundle_t *bundle, FILE *file,
     do {
         image_flag_t flag;
 
-        ret = load_gidf_header(bundle, file, &flag, grape_malloc);
-        if (ret != GRAPE_OK) {
+        uint16_t palette_count =
+            load_gidf_header(bundle, file, &flag, grape_malloc);
+        if (palette_count <= 0) {
             break;
         }
 
@@ -148,7 +151,7 @@ GRAPE_RET grape_bundle_load_call(grape_bundle_t *bundle, FILE *file,
             break;
         }
 
-        ret = load_palette(bundle, file, flag, grape_malloc);
+        ret = load_palettes(bundle, file, flag, palette_count, grape_malloc);
         if (ret != GRAPE_OK) {
             break;
         }

@@ -3,6 +3,7 @@
 #include "text.h"
 
 #include <inttypes.h>
+#include <stdlib.h>
 
 const char *argp_program_version = SOFTWARE_STRING;
 const char *argp_program_bug_address = BUG_REPORT_URL;
@@ -26,6 +27,7 @@ struct argp_option options[] = {
     {"output", 'o', "FILE", 0, "Output to FILE"},
     {"width", 'm', "uint16", 0, "Specify image width"},
     {"height", 'n', "uint16", 0, "Specify image height"},
+    {"pal-count", 'a', "uint16", 0, "Specify palette count, default 1"},
     {"compress", 'c', 0, 0, "Compress base image (LZ77)"},
     {"palette", 'p', "FILE", 0,
      "Specify palette binary file, usually *.pal.bin"},
@@ -61,6 +63,10 @@ error_t parse_opt(int key, char *arg, struct argp_state *state) {
 
     case 'g':
         arguments->image_flag |= IMG_16B_TRUE_COLOR;
+        break;
+
+    case 'a':
+        arguments->palette_count = atoi(arg);
         break;
 
     case 'p':
@@ -111,13 +117,17 @@ int parse_arguments(arguments_t *arguments, int argc, char **const argv) {
         fprintf(stderr, "Must specify image height.\n");
         argp_help(&argp, stderr, ARGP_HELP_SHORT_USAGE, argv[0]);
         ret = 1;
+    } else if (arguments->palette_count <= 0) {
+        fprintf(stderr, "Palette count should >= 0!\n");
+        ret = 1;
     } else if ((arguments->image_flag & IMG_8B_256_COLOR) &&
                (arguments->image_flag & IMG_16B_TRUE_COLOR)) {
         fprintf(stderr, "You can't specify both 8-bit and 16-bit!\n");
         ret = 1;
     } else if (!(arguments->image_flag & IMG_8B_256_COLOR) &&
                !(arguments->image_flag & IMG_16B_TRUE_COLOR)) {
-        fprintf(stderr, "Must specify color bit-depth: 8-bit(-8)/16-bit(-g)!\n");
+        fprintf(stderr,
+                "Must specify color bit-depth: 8-bit(-8)/16-bit(-g)!\n");
         ret = 1;
     } else if ((arguments->image_flag & IMG_8B_256_COLOR) &&
                arguments->palette_file == NULL) {

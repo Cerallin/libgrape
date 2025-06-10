@@ -36,7 +36,7 @@ typedef struct GrapeImageDiffFormatHeader {
     uint8_t diffCount;
     uint16_t imageWidth;
     uint16_t imageHeight;
-    uint16_t preserved;
+    uint16_t paletteCount;
 } GIDF_Header;
 
 #ifdef __cplusplus

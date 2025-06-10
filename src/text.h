@@ -14,6 +14,7 @@ typedef struct _arguments {
     char *output_file;
     char *palette_file;
     int file_count;
+    int palette_count;
     uint16_t width;
     uint16_t height;
     image_flag_t image_flag;

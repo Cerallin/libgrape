@@ -19,11 +19,13 @@ template <typename PIXEL_T> class Bundle {
     std::vector<std::string> _fileList;
     uint16_t imageWidth;
     uint16_t imageHeight;
+    uint16_t paletteCount;
 
     Bitmap<PIXEL_T> *makeBitmap(const std::string &fileString) const;
 
   public:
-    Bundle(uint16_t imageWidth, uint16_t imageHeight) {
+    Bundle(uint16_t imageWidth, uint16_t imageHeight, uint16_t paletteCount = 1)
+        : paletteCount(paletteCount) {
         constexpr size_t pixelSize = sizeof(PIXEL_T);
         this->imageWidth = ALIGN4(pixelSize * imageWidth) / pixelSize;
         this->imageHeight = imageHeight;
@@ -145,6 +147,7 @@ GRAPE_RET Bundle<PIXEL_T>::Dump(std::ostream &outStream,
             .diffCount = _fileList.size(),
             .imageWidth = imageWidth,
             .imageHeight = imageHeight,
+            .paletteCount = this->paletteCount,
         };
         WriteStruct(outStream, fileHeader);
     }

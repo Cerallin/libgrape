@@ -22,7 +22,7 @@ CONST_EXPR GIDF_Header expectedHeader = {
     (uint8_t)2,           // diff count
     IMG_WIDTH,            // width
     IMG_HEIGHT,           // height
-    (uint16_t)0x0000,     // preserved
+    (uint16_t)0x0001,     // palette count
 };
 
 inline void dumpFile(const char *filename, const char *content) {

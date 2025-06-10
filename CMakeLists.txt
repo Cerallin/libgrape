@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(libgrape VERSION 0.9.1)
+project(libgrape VERSION 1.0.0)
 
 include(ExternalProject)
 

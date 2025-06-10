@@ -14,14 +14,15 @@ int main(int argc, char **argv) {
     arguments_t arguments[1] = {{
         .image_flag = 0,
         .verbose = 0,
+        .palette_count = 1,
     }};
     int parse_res = parse_arguments(arguments, argc, argv);
     if (parse_res != 0) {
         return parse_res;
     }
 
-    bundle =
-        grape_init(arguments->width, arguments->height, arguments->image_flag);
+    bundle = grape_init(arguments->width, arguments->height,
+                        arguments->palette_count, arguments->image_flag);
 
     {
         const char *palette_file = arguments->palette_file;

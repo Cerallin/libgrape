@@ -23,6 +23,7 @@ typedef struct _grape_image_bundle {
     grape_diff_t *diff_series;
     uint16_t palette_size;
     uint16_t diff_count;
+    uint16_t palette_count;
 } grape_bundle_t;
 
 GRAPE_RET grape_bundle_load_call(grape_bundle_t *bundle, FILE *file,
@@ -42,6 +43,12 @@ inline void grape_bundle_free(grape_bundle_t *bundle,
     sassert(grape_free != NULL, "grape_free() cannot be NULL!");
 
     return grape_bundle_free_call(bundle, grape_free);
+}
+
+inline const void *grape_bundle_palette(const grape_bundle_t *bundle, int n) {
+    size_t offset = n * (bundle->palette_size);
+    const uint8_t *palette = (const uint8_t *)bundle->palette;
+    return &palette[offset];
 }
 
 #ifdef __cplusplus

@@ -16,13 +16,15 @@ static constexpr bool is16BitImage(image_flag_t imageFlag) {
 }
 
 grape_bundle_ptr_t grape_init(uint16_t imageWidth, uint16_t imageHeight,
-                              image_flag_t imageFlag) {
+                              uint16_t paletteCount, image_flag_t imageFlag) {
     _imageFlag = imageFlag;
 
     if (is8BitImage(_imageFlag)) {
-        return new Grape::Bundle<uint8_t>(imageWidth, imageHeight);
+        return new Grape::Bundle<uint8_t>(imageWidth, imageHeight,
+                                          paletteCount);
     } else if (is16BitImage(_imageFlag)) {
-        return new Grape::Bundle<uint16_t>(imageWidth, imageHeight);
+        return new Grape::Bundle<uint16_t>(imageWidth, imageHeight,
+                                           paletteCount);
     } else {
         return nullptr;
     }
