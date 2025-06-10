@@ -138,7 +138,7 @@ GRAPE_RET grape_bundle_load_call(grape_bundle_t *bundle, FILE *file,
     GRAPE_RET ret;
 
     do {
-        image_flag_t flag;
+        image_flag_t flag = 0;
 
         uint16_t palette_count =
             load_gidf_header(bundle, file, &flag, grape_malloc);
