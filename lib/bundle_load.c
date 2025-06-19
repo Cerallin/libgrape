@@ -91,6 +91,7 @@ GRAPE_RET load_palettes(grape_bundle_t *bundle, FILE *file, image_flag_t flag,
             uint32_t palette_size = paletteHeader->paletteSize;
             void *ptr = grape_malloc(palette_size);
 
+            bundle->palette_count = palette_count;
             bundle->palette_size = palette_size / palette_count;
             bundle->palette = ptr;
             fread(bundle->palette, 1, palette_size, file);
